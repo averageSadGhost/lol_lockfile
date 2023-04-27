@@ -1,0 +1,80 @@
+import 'dart:io';
+import 'package:logger/logger.dart';
+
+// commands to get the path from the running process "League of legends client" on diffrent operating systems.
+
+// Mac commands:
+const _macCommand = 'ps';
+const _macCommandArgs = ["aux", "-o", "args | grep 'LeagueClientUx'"];
+
+//______________________________________________________________________________
+
+// Windows commands:
+const _winCommand =
+    "WMIC PROCESS WHERE name='LeagueClientUx.exe' GET commandline";
+
+//______________________________________________________________________________
+
+class ClientCredentials {
+  //do a regex search, for more info visit: https://hextechdocs.dev/getting-started-with-the-lcu-api/
+
+  final _regexMAC = RegExp(r'--install-directory=(.*?)( --|\n|$)');
+
+  final _regexWin = RegExp(r'--install-directory=(.*?)"');
+
+  Future<String?> _getLCUPathFromProcess() async {
+    if (Platform.isMacOS) {
+      final result = await Process.run(_macCommand, _macCommandArgs);
+
+      final match = _regexMAC.firstMatch(result.stdout);
+      final matchedText = match?.group(1);
+
+      return matchedText;
+    } else if (Platform.isWindows) {
+      final result = await Process.run(
+        _winCommand,
+        [],
+        runInShell: true,
+      );
+
+      final match = _regexWin.firstMatch(result.stdout);
+      final matchedText = match?.group(1);
+
+      return matchedText;
+    }
+    return null;
+  }
+
+  static Map<String, String> _parseCredentials(String data) {
+    //example of unsplited data LeagueClient:33668:59541:kNtVjjh-s-EC9vtAKz7l7g:https
+    List<String> splitedData = data.split(":");
+    //example of spilted data ["LeagueClient","33668","59541","kNtVjjh-s-EC9vtAKz7l7g","https"]
+    return {
+      //example of the return {processName: LeagueClient, processId: 33668, port: 59541, password: kNtVjjh-s-EC9vtAKz7l7g, protocol: https}
+      "processName": splitedData[0],
+      "processId": splitedData[1],
+      "port": splitedData[2],
+      "password": splitedData[3],
+      "protocol": splitedData[4],
+    };
+  }
+
+  Future<Map<String, String>?> getCredentials() async {
+    try {
+      Map<String, String> data = _parseCredentials(
+          File('${await _getLCUPathFromProcess()}/lockfile')
+              .readAsStringSync());
+      return data;
+    } catch (error) {
+      var logger = Logger(
+        filter: null, // Use the default LogFilter (-> only log in debug mode)
+        printer:
+            PrettyPrinter(), // Use the PrettyPrinter to format and print log
+        output:
+            null, // Use the default LogOutput (-> send everything to console)
+      );
+      logger.e("lol_lockfile: error in getting credentials, $error");
+      return null;
+    }
+  }
+}
