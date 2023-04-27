@@ -15,6 +15,22 @@ const _winCommand =
 
 //______________________________________________________________________________
 
+class Creds {
+  final String processName;
+  final String processId;
+  final String port;
+  final String password;
+  final String protocol;
+
+  Creds({
+    required this.processName,
+    required this.processId,
+    required this.port,
+    required this.password,
+    required this.protocol,
+  });
+}
+
 class ClientCredentials {
   //do a regex search, for more info visit: https://hextechdocs.dev/getting-started-with-the-lcu-api/
 
@@ -45,23 +61,21 @@ class ClientCredentials {
     return null;
   }
 
-  static Map<String, String> _parseCredentials(String data) {
+  Creds _parseCredentials(String data) {
     //example of unsplited data LeagueClient:33668:59541:kNtVjjh-s-EC9vtAKz7l7g:https
     List<String> splitedData = data.split(":");
     //example of spilted data ["LeagueClient","33668","59541","kNtVjjh-s-EC9vtAKz7l7g","https"]
-    return {
-      //example of the return {processName: LeagueClient, processId: 33668, port: 59541, password: kNtVjjh-s-EC9vtAKz7l7g, protocol: https}
-      "processName": splitedData[0],
-      "processId": splitedData[1],
-      "port": splitedData[2],
-      "password": splitedData[3],
-      "protocol": splitedData[4],
-    };
+    return Creds(
+        processName: splitedData[0],
+        processId: splitedData[1],
+        port: splitedData[2],
+        password: splitedData[3],
+        protocol: splitedData[4]);
   }
 
-  Future<Map<String, String>?> getCredentials() async {
+  Future<Creds?> getCredentials() async {
     try {
-      Map<String, String> data = _parseCredentials(
+      Creds data = _parseCredentials(
           File('${await _getLCUPathFromProcess()}/lockfile')
               .readAsStringSync());
       return data;
