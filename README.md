@@ -6,7 +6,6 @@ Detects the league of legend's client path then get's all data in the lockfile, 
 
 ## Usage
 
-TODO: Include short and useful examples for package users. Add longer examples
 to `/example` folder.
 
 ```dart
