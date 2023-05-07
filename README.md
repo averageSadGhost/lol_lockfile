@@ -7,5 +7,5 @@ Detects the league of legend's client path then get's all data in the lockfile, 
 ## Usage
 
 ```dart
-Creds? creds = await ClientCredentials().getCredentials();
+ClientCredentials? creds = await ClientCredentials().getCredentials();
 ```
