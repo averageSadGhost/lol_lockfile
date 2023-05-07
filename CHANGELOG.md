@@ -1,3 +1,3 @@
-## 0.0.1
+## 0.0.3
 
 Get all data from lockfile
