@@ -15,23 +15,20 @@ const _winCommand =
 
 //______________________________________________________________________________
 
-class Creds {
+class ClientCredentials {
   final String processName;
   final String processId;
   final String port;
   final String password;
   final String protocol;
-
-  Creds({
+  ClientCredentials({
     required this.processName,
     required this.processId,
     required this.port,
     required this.password,
     required this.protocol,
   });
-}
 
-class ClientCredentials {
   //do a regex search, for more info visit: https://hextechdocs.dev/getting-started-with-the-lcu-api/
 
   final _regexMAC = RegExp(r'--install-directory=(.*?)( --|\n|$)');
@@ -61,11 +58,11 @@ class ClientCredentials {
     return null;
   }
 
-  Creds _parseCredentials(String data) {
+  ClientCredentials _parseCredentials(String data) {
     //example of unsplited data LeagueClient:33668:59541:kNtVjjh-s-EC9vtAKz7l7g:https
     List<String> splitedData = data.split(":");
     //example of spilted data ["LeagueClient","33668","59541","kNtVjjh-s-EC9vtAKz7l7g","https"]
-    return Creds(
+    return ClientCredentials(
         processName: splitedData[0],
         processId: splitedData[1],
         port: splitedData[2],
@@ -73,9 +70,9 @@ class ClientCredentials {
         protocol: splitedData[4]);
   }
 
-  Future<Creds?> getCredentials() async {
+  Future<ClientCredentials?> getCredentials() async {
     try {
-      Creds data = _parseCredentials(
+      ClientCredentials data = _parseCredentials(
           File('${await _getLCUPathFromProcess()}/lockfile')
               .readAsStringSync());
       return data;
