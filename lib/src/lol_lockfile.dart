@@ -4,13 +4,13 @@ import 'package:logger/logger.dart';
 // commands to get the path from the running process "League of legends client" on diffrent operating systems.
 
 // Mac commands:
-const _macCommand = 'ps';
-const _macCommandArgs = ["aux", "-o", "args | grep 'LeagueClientUx'"];
+const macCommand = 'ps';
+const macCommandArgs = ["aux", "-o", "args | grep 'LeagueClientUx'"];
 
 //______________________________________________________________________________
 
 // Windows commands:
-const _winCommand =
+const winCommand =
     "WMIC PROCESS WHERE name='LeagueClientUx.exe' GET commandline";
 
 //______________________________________________________________________________
@@ -33,26 +33,24 @@ class Creds {
 class ClientCredentials {
   //do a regex search, for more info visit: https://hextechdocs.dev/getting-started-with-the-lcu-api/
 
-  final _regexMAC = RegExp(r'--install-directory=(.*?)( --|\n|$)');
-
-  final _regexWin = RegExp(r'--install-directory=(.*?)"');
-
-  Future<String?> _getLCUPathFromProcess() async {
+  static Future<String?> _getLCUPathFromProcess() async {
     if (Platform.isMacOS) {
-      final result = await Process.run(_macCommand, _macCommandArgs);
+      final result = await Process.run(macCommand, macCommandArgs);
+      final regexMAC = RegExp(r'--install-directory=(.*?)( --|\n|$)');
 
-      final match = _regexMAC.firstMatch(result.stdout);
+      final match = regexMAC.firstMatch(result.stdout);
       final matchedText = match?.group(1);
 
       return matchedText;
     } else if (Platform.isWindows) {
+      final regexWin = RegExp(r'--install-directory=(.*?)"');
       final result = await Process.run(
-        _winCommand,
+        winCommand,
         [],
         runInShell: true,
       );
 
-      final match = _regexWin.firstMatch(result.stdout);
+      final match = regexWin.firstMatch(result.stdout);
       final matchedText = match?.group(1);
 
       return matchedText;
@@ -60,7 +58,7 @@ class ClientCredentials {
     return null;
   }
 
-  Creds _parseCredentials(String data) {
+  static Creds parseCredentials(String data) {
     //example of unsplited data LeagueClient:33668:59541:kNtVjjh-s-EC9vtAKz7l7g:https
     List<String> splitedData = data.split(":");
     //example of spilted data ["LeagueClient","33668","59541","kNtVjjh-s-EC9vtAKz7l7g","https"]
@@ -73,9 +71,9 @@ class ClientCredentials {
     );
   }
 
-  Future<Creds?> getCredentials() async {
+  static Future<Creds?> getCredentials() async {
     try {
-      Creds data = _parseCredentials(
+      Creds data = parseCredentials(
           File('${await _getLCUPathFromProcess()}/lockfile')
               .readAsStringSync());
       return data;
