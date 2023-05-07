@@ -1,6 +1,6 @@
 name: lol_lockfile
 description: get all data from the lockfile located in the league of legends directory, working on Windows & Mac os for now.
-version: 0.0.5
+version: 0.0.6
 homepage: https://github.com/averageSadGhost/lol_lockfile
 
 environment:
