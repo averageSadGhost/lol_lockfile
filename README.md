@@ -1,4 +1,4 @@
-Get's all data from the lockfile located in the league of legends directory.
+Get all data from the lockfile located in the league of legends directory.
 
 ## Features
 
